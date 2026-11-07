@@ -1,0 +1,6 @@
+{
+  "name": "Lumina Spend",
+  "description": "AI Smart Expense & Budget Hub with Gemini receipt OCR, voice quick-logging, and adaptive burn-velocity alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
