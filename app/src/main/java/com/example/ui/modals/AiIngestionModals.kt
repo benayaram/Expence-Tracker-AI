@@ -393,7 +393,7 @@ fun ReceiptLensOcrModal(
     extractionState: AiExtractionState,
     categories: List<CategoryEntity>,
     currencyCode: String,
-    onAnalyzeBitmap: (Bitmap) -> Unit,
+    onAnalyzeBitmap: (Bitmap, Int?) -> Unit,
     onConfirmSave: (
         merchant: String,
         amount: Double,
@@ -431,7 +431,7 @@ fun ReceiptLensOcrModal(
                 }
                 if (bmp != null) {
                     previewBitmap = bmp
-                    onAnalyzeBitmap(bmp)
+                    onAnalyzeBitmap(bmp, null)
                 }
             } catch (_: Exception) {}
         }
@@ -443,7 +443,7 @@ fun ReceiptLensOcrModal(
     ) { bmp ->
         if (bmp != null) {
             previewBitmap = bmp
-            onAnalyzeBitmap(bmp)
+            onAnalyzeBitmap(bmp, null)
         }
     }
 
@@ -557,9 +557,10 @@ fun ReceiptLensOcrModal(
 
                 OutlinedButton(
                     onClick = {
-                        val bmp = GeminiExpenseAiService.createSampleReceiptBitmap(sampleIndex++)
+                        val currentPreset = sampleIndex++
+                        val bmp = GeminiExpenseAiService.createSampleReceiptBitmap(currentPreset)
                         previewBitmap = bmp
-                        onAnalyzeBitmap(bmp)
+                        onAnalyzeBitmap(bmp, currentPreset)
                     },
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, LuminaEmerald.copy(alpha = 0.6f)),

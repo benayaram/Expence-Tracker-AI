@@ -338,7 +338,7 @@ fun LuminaSpendApp(
             extractionState = extractionState,
             categories = uiState.categories,
             currencyCode = uiState.currencyCode,
-            onAnalyzeBitmap = { bmp -> viewModel.extractExpenseFromReceipt(bmp) },
+            onAnalyzeBitmap = { bmp, sampleHint -> viewModel.extractExpenseFromReceipt(bmp, sampleHint) },
             onConfirmSave = { merchant, amount, dateStr, catName, note, tags, tax, items, isSub, sentiment, source ->
                 viewModel.saveTransaction(
                     merchant = merchant,

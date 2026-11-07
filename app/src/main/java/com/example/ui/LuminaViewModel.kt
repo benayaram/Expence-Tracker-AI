@@ -303,7 +303,7 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     // AI Extraction: Multimodal Receipt OCR
-    fun extractExpenseFromReceipt(bitmap: Bitmap) {
+    fun extractExpenseFromReceipt(bitmap: Bitmap, samplePresetHint: Int? = null) {
         viewModelScope.launch {
             val state = uiState.value
             _aiExtractionState.value = AiExtractionState.Loading("Gemini Vision is scanning receipt line items & tax...")
@@ -318,7 +318,8 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
                 bitmap = bitmap,
                 currentDate = activeDate,
                 existingCategories = existingCategoryNames,
-                defaultCurrency = state.currencyCode
+                defaultCurrency = state.currencyCode,
+                samplePresetHint = samplePresetHint
             )
 
             result.fold(
@@ -346,7 +347,7 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
         _aiExtractionState.value = AiExtractionState.Idle
     }
 
-    // AI Coaching
+    // AI Coaching (Streaming with resilient fallback)
     fun requestAiSpendingCoaching() {
         viewModelScope.launch {
             val state = uiState.value
@@ -362,24 +363,27 @@ class LuminaViewModel(application: Application) : AndroidViewModel(application) 
                 .take(4)
                 .joinToString(", ") { "${it.merchant} (${CurrencyFormatter.format(it.amount, state.currencyCode)})" }
 
-            val result = aiService.generateSpendingInsights(
-                monthDisplay = state.selectedMonthDisplay,
-                totalSpentFormatted = totalSpentStr,
-                totalBudgetFormatted = totalBudgetStr,
-                categoryBreakdownText = catSummaryStr,
-                topMerchantsText = topMerchantsStr
-            )
-
-            result.fold(
-                onSuccess = { insight ->
-                    _aiCoachingState.value = AiCoachingState.Success(insight)
-                },
-                onFailure = { err ->
-                    _aiCoachingState.value = AiCoachingState.Error(
-                        err.localizedMessage ?: "Unable to generate AI coaching right now."
-                    )
+            var latestText = ""
+            try {
+                aiService.streamSpendingInsights(
+                    monthDisplay = state.selectedMonthDisplay,
+                    totalSpentFormatted = totalSpentStr,
+                    totalBudgetFormatted = totalBudgetStr,
+                    percentSpent = state.metrics.percentSpent,
+                    velocityHeadline = state.metrics.velocityHeadline,
+                    categoryBreakdownText = catSummaryStr,
+                    topMerchantsText = topMerchantsStr
+                ).collect { chunkSnapshot ->
+                    latestText = chunkSnapshot
+                    _aiCoachingState.value = AiCoachingState.Success(latestText)
                 }
-            )
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _aiCoachingState.value = AiCoachingState.Error(
+                    e.localizedMessage ?: "Unable to generate AI coaching right now."
+                )
+            }
         }
     }
 
