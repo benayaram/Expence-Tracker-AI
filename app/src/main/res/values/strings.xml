@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Lumina Spend</string>
+    <string name="tab_hub">Hub</string>
+    <string name="tab_analytics">Analytics</string>
+    <string name="tab_categories">Categories</string>
+    <string name="tab_history">History</string>
+    <string name="quick_scan_receipt">Receipt OCR</string>
+    <string name="quick_voice_log">Voice Quick-Add</string>
+    <string name="quick_smart_note">AI Quick Note</string>
+    <string name="quick_manual_add">Manual Add</string>
+    <string name="ai_insights_title">AI Insights &amp; Anomaly Warnings</string>
+    <string name="category_breakdown_title">Category Breakdown</string>
+    <string name="recent_transactions_title">Recent Transactions</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="share_csv">Share CSV</string>
+    <string name="settings_title">Currency &amp; Budget Settings</string>
 </resources>
